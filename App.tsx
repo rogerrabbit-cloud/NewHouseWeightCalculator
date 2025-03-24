@@ -5,127 +5,142 @@
  * @format
  */
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, { useState } from 'react';
 import {
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
+  TextInput,
+  Button,
   View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+type HouseType = 'brick' | 'wood';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+const App = (): React.JSX.Element => {
+  const [bedrooms, setBedrooms] = useState('');
+  const [bathrooms, setBathrooms] = useState('');
+  const [livingRooms, setLivingRooms] = useState('');
+  const [floors, setFloors] = useState('');
+  const [length, setLength] = useState('');
+  const [width, setWidth] = useState('');
+  const [houseType, setHouseType] = useState<HouseType>('brick');
+  const [roofWeight] = useState(1000); // Example constant
+  const [result, setResult] = useState<number | null>(null);
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+  const calculateHouseWeight = () => {
+    const totalFloorArea = parseFloat(length) * parseFloat(width);
+    const baseWeightPerSqMeter = houseType === 'brick' ? 500 : 300;
+    const houseWeight =
+      totalFloorArea * baseWeightPerSqMeter * parseInt(floors) + roofWeight;
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    setResult(houseWeight);
   };
 
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the reccomendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
-  const safePadding = '5%';
-
   return (
-    <View style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+    <ScrollView contentContainerStyle={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      <Text style={styles.title}>House Weight Calculator</Text>
+
+      <Text>Number of Bedrooms:</Text>
+      <TextInput
+        style={styles.input}
+        value={bedrooms}
+        onChangeText={setBedrooms}
+        keyboardType="numeric"
       />
-      <ScrollView
-        style={backgroundStyle}>
-        <View style={{paddingRight: safePadding}}>
-          <Header/>
-        </View>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </View>
+
+      <Text>Number of Bathrooms:</Text>
+      <TextInput
+        style={styles.input}
+        value={bathrooms}
+        onChangeText={setBathrooms}
+        keyboardType="numeric"
+      />
+
+      <Text>Number of Living Rooms:</Text>
+      <TextInput
+        style={styles.input}
+        value={livingRooms}
+        onChangeText={setLivingRooms}
+        keyboardType="numeric"
+      />
+
+      <Text>Number of Floors:</Text>
+      <TextInput
+        style={styles.input}
+        value={floors}
+        onChangeText={setFloors}
+        keyboardType="numeric"
+      />
+
+      <Text>Room Length (meters):</Text>
+      <TextInput
+        style={styles.input}
+        value={length}
+        onChangeText={setLength}
+        keyboardType="numeric"
+      />
+
+      <Text>Room Width (meters):</Text>
+      <TextInput
+        style={styles.input}
+        value={width}
+        onChangeText={setWidth}
+        keyboardType="numeric"
+      />
+
+      <Text>House Type:</Text>
+      <View style={styles.buttonGroup}>
+        <Button
+          title="Brick"
+          onPress={() => setHouseType('brick')}
+          color={houseType === 'brick' ? 'blue' : 'gray'}
+        />
+        <Button
+          title="Wood"
+          onPress={() => setHouseType('wood')}
+          color={houseType === 'wood' ? 'blue' : 'gray'}
+        />
+      </View>
+
+      <Text>Roof Weight (constant): {roofWeight} kg</Text>
+
+      <Button title="Calculate Weight" onPress={calculateHouseWeight} />
+
+      {result !== null && <Text style={styles.result}>House Weight: {result} kg</Text>}
+    </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    padding: 20,
   },
-  sectionTitle: {
+  title: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
-  sectionDescription: {
-    marginTop: 8,
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginVertical: 10,
+    borderRadius: 5,
+  },
+  buttonGroup: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+  },
+  result: {
+    marginTop: 20,
     fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+    fontWeight: 'bold',
   },
 });
 
 export default App;
+
